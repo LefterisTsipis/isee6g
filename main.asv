@@ -1,0 +1,22 @@
+
+clear all
+clc
+close all
+% call configuration
+config
+mc = 1;
+MC = 1;
+RESULT_means = zeros (mc,6);
+RESULT_medoids = zeros (mc,6);
+RESULT_Fuzzy = zeros (mc,6);
+[UE, MeNB, HotSpot, Grid] = create_grid(T, M, clusters, NMeNB, RMacro, RHotSpot, uheight, mheight, PtMacrodBm);
+%% ****************  Before Disaster ***********************************%
+plot_grid(UE, MeNB,  Grid, threshold)
+
+%% ****************  50 %  Disaster ***********************************%
+MeNB([1 2]) = [];
+plot_grid(UE, MeNB,  Grid, threshold);
+
+%% find outage ousers to be served by Drones
+outageUsers = find_outage_users(UE, MeNB, threshold);
+ drone('kmedoid', outageUsers, M)
