@@ -1,39 +1,8 @@
-function plot_grid(UE, Base_station, Grid, threshold)
-% 3D plot of UEs & MeNBs with serving relations
+function plot_grid(UE, Base_station, Grid, threshold, RUs)
 
-%% --- Convert UE from matrix to struct if needed ---
-if ~isstruct(UE)
-    UE_mat = UE;
-    nUE = size(UE_mat, 1);
-    UE = struct('id', [], 'x', [], 'y', [], 'z', []);
-    UE = repmat(UE, nUE, 1);
-    for i = 1:nUE
-        UE(i).id = UE_mat(i,1);
-        UE(i).x  = UE_mat(i,2);
-        UE(i).y  = UE_mat(i,3);
-        UE(i).z  = UE_mat(i,4);
-    end
-else
-    nUE = numel(UE);
-end
-
-%% --- Convert Base_station from matrix to struct ---
-if ~isstruct(Base_station)
-    MeNB_mat = Base_station;
-    nBs = size(MeNB_mat, 1);
-    Base_station = struct('x', [], 'y', [], 'id', [], 'z', [], 'PtdBm', [], 'Pt', []);
-    Base_station = repmat(Base_station, nBs, 1);
-    for j = 1:nBs
-        Base_station(j).x      = MeNB_mat(j,1);
-        Base_station(j).y      = MeNB_mat(j,2);
-        Base_station(j).id     = MeNB_mat(j,3);
-        Base_station(j).z      = MeNB_mat(j,4);
-        Base_station(j).PtdBm  = MeNB_mat(j,5);
-        Base_station(j).Pt     = MeNB_mat(j,6);
-    end
-else
-    nBs = numel(Base_station);
-end
+nUE = numel(UE);
+nBs = numel(Base_station);
+nRUs = numel(RUs);
 
 %% --- Compute serving Base_station for each UE ---
 for i = 1:nUE
@@ -57,7 +26,7 @@ for i = 1:nUE
     UE(i).PrMenBdBm    = UE(i).PrMenBdBm(bestID);
 
     if UE(i).PrMenBdBm < threshold 
-        UE(i).EnB_ID = -1
+        UE(i).EnB_ID = -1;
     end
 end
 
@@ -95,9 +64,18 @@ yUE = [UE.y];
 zUE = [UE.z];
 cUE = [UE.EnB_ID];
 
-scatter3(xUE, yUE, zUE, 40, cUE, 'filled');
+scatter3(xUE, yUE, zUE, 40,cUE, 'filled');
+%% --- Plot RUs located in cell edge ---
+if nRUs > 0
 
+xRU = [RUs.x]; 
+yRU = [RUs.y]; 
+zRU = [RUs.z];
 
+plot3(xRU, yRU, zRU, 'ko', 'MarkerSize', 12, 'LineWidth', 2);
+set(gca, 'DataAspectRatio', [1 1 3]);   % Change 3 → 4, 5, etc. for more height
+
+end
 %colormap(jet(nBs));
 %colorbar;
 
